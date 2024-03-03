@@ -14,7 +14,7 @@ class PID
     void reset(double resetValue);
 
   private:
-    double Kp = 0;
+    double Kp = 0.1;
     double Ki = 0;
     double Kd = 0;
     double iForget = 0;

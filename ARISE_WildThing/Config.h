@@ -6,13 +6,13 @@
 bool showDetail = true; // hide/show details in serialprint
 
 // Occupant Joystick
-const float joyOffsetAngle_Occupant = 0; // polar orientation of joystick (offset # of degrees to get forward to equal 0) <OCCUPANT>
-const bool flipSpin_Occupant = false; // use true or false to change SPIN direction (flip if chair left/right is wrong) <OCCUPANT>
+//const float joyOffsetAngle_Occupant = 0; // polar orientation of joystick (offset # of degrees to get forward to equal 0) <OCCUPANT>
+//const bool flipSpin_Occupant = false; // use true or false to change SPIN direction (flip if chair left/right is wrong) <OCCUPANT>
 const float OccupantDownrate = 1; // downrate of occupant input for scaling speed (0 to 1)
 
 // Tethered Joystick
-const float joyOffsetAngle_Tether = 0; // polar orientation of joystick (offset # of degrees to get forward to equal 0) <TETHER>
-const bool flipSpin_Tether = false; // use true or false to change SPIN direction (flip if chair left/right is wrong) <TETHER>
+//const float joyOffsetAngle_Tether = 0; // polar orientation of joystick (offset # of degrees to get forward to equal 0) <TETHER>
+//const bool flipSpin_Tether = false; // use true or false to change SPIN direction (flip if chair left/right is wrong) <TETHER>
 const float TetherDownrate = 1.0; // downrate of thether input for scaling speed (0 to 1)
 
   // Angles
@@ -32,9 +32,9 @@ const float TetherDownrate = 1.0; // downrate of thether input for scaling speed
     const float TrimMinus = 0.1 ; // range: 0.00 to 0.2 Minus Speed for Inside Wheel within TrimAngle (% output for Motor pwm)
 
 // Radius Lookup Table (Scale)
-  const float Deadband   = .15 ; // 0 to .1 (%) suggested around rest position before moving (NOTE this will be used in + and - directions, so actual deadband is 2x)
+  const float Deadband   = .05 ; // 0 to .1 (%) suggested around rest position before moving (NOTE this will be used in + and - directions, so actual deadband is 2x)
   const float motorDropout = 0.05; // typical range: 0.01 to 0.15 ;motor dropout ( % of motorMaxSpeed ) Set this to the minimum % it takes to drive the motor. "Too high" will cause troubles when turning because the inside motor "will not shut off smoothly"
-  const float brakeZone = 0.1; // typical range: 0.01 to 0.15 ; % of desired speed = transition point to switch to/from braking & driving PWM when converting motor desired speed
+  const float brakeZone = 0.05; // typical range: 0.01 to 0.15 ; % of desired speed = transition point to switch to/from braking & driving PWM when converting motor desired speed
   const float Endband    = .01 ; // 0 to .1 (%) suggested at end of range to ignore
   const float SlowRadius = 0.4 ; // 0 to 1 (%) of the Joystick range to use for low speed control (x-axis end of 1st ramp & begin 2nd ramp in lookup table)
   const float SlowPower  = 0.2 ; // 0 to 1 (%) of Power to use for low speed control (y-axis end of 1st ramp & begin 2nd ramp in lookup table)
@@ -60,10 +60,6 @@ const float TetherDownrate = 1.0; // downrate of thether input for scaling speed
 
   float mA_Rate = 2; // rate limit applied to current measure
   float mA_Pct = 0.03; // first order filter factor for current measure
-  //float Kp = .01; // proportional constant used to correct if speed too low
-  float Kp_minus = .01; // proportional constant used to correct if speed too high
-  float PID_Rate = .001; // filter for PID control
-  float PID_Pct = .1; // filter for PID control
 
   float Ke = 1.05; // 1/Kt
   float Ra = 0.0035; // Ohm/1000

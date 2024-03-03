@@ -54,11 +54,11 @@ void setMotorOutputs_VNH5019(float joyReq_L, float joyReq_R){
       }
     }
 
-//    PIDout_L = motorPID_L.calc( speedReq_L - speedCalc_L, joyReq_L ); // error controller PID(error, FeedForward)
-//    PIDout_R = motorPID_R.calc( speedReq_R - speedCalc_R, joyReq_R ); // error controller PID(error, FeedForward)
+    PIDout_L = motorPID_L.calc( speedReq_L - speedCalc_L, joyReq_L ); // error controller PID(error, FeedForward)
+    PIDout_R = motorPID_R.calc( speedReq_R - speedCalc_R, joyReq_R ); // error controller PID(error, FeedForward)
 
-    PIDout_L = joyReq_L; // no error controller
-    PIDout_R = joyReq_R; // no error controller
+//    PIDout_L = joyReq_L; // no error controller
+//    PIDout_R = joyReq_R; // no error controller
 
   // Motor Braking and Driving
   float brakeSlope = (maxBrake - minBrake) / brakeZone; // slope of brake line from maxBrake at 0  to minBrake at motorZone
@@ -95,8 +95,8 @@ void setMotorOutputs_VNH5019(float joyReq_L, float joyReq_R){
       motorPwm_R = (motorDropout + pwmSlope * (abs(PIDout_R) - brakeZone) ) * motorDir_R;
       md.setM2Speed( motorPwm_R * 400 ); // set motor drive pwm
     }
-/*
     if ( currentTime - lastDebugTime >= debugPeriod) {
+/*
       Serial.print("R: ");
       Serial.print("joyReq "); Serial.print(joyReq_R); Serial.print(" ");
       Serial.print("speedReq_R "); Serial.print(speedReq_R); Serial.print(" ");
@@ -108,7 +108,7 @@ void setMotorOutputs_VNH5019(float joyReq_L, float joyReq_R){
       Serial.print("speedErr "); Serial.print(speedReq_R-speedCalc_R); Serial.print(" ");
       Serial.print("PIDout "); Serial.print(PIDout_R); Serial.print(" ");
 //      Serial.print("Brake "); Serial.print(Brake_R); Serial.print(" ");
-
+*/
       Serial.print("L: ");
       Serial.print("joyReq "); Serial.print(joyReq_L); Serial.print(" ");
       Serial.print("speedReq "); Serial.print(speedReq_L); Serial.print(" ");
@@ -123,5 +123,5 @@ void setMotorOutputs_VNH5019(float joyReq_L, float joyReq_R){
 
       Serial.println("");
     }
-*/
+
 }

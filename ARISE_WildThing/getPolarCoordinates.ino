@@ -21,7 +21,15 @@ polarCoord getPolarCoordinates(float thisX, float thisY) {
     Angle_ = 0;
     } else {
     Angle_ = AngleRadians_ * 57.3; // we assume that 1 radian = 57.29 (and a bit) degrees.
-  }  
+  }
+
+  // protect for angle outside of 0 to 360
+  if (Angle_ < 0){
+    Angle_ = 360+Angle_;
+  }
+  if (Angle_ > 360) {
+    Angle_ = Angle_ -360;
+  }
 
   struct polarCoord PolarCoord_;
   PolarCoord_.Radius = Radius_;
