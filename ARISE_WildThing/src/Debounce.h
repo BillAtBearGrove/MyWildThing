@@ -11,9 +11,11 @@ class Debounce
     bool debounceInput(bool thisInput);
     bool debounceHigh(bool thisInput);
     bool debounceLow(bool thisInput);
+    bool debounceBoth(bool thisInput);
 
   private:
     bool lastInput = false;
+    bool lastOutput = false;
     unsigned long lastDebounceTime = 0;
     unsigned long debounceDelay;
 };

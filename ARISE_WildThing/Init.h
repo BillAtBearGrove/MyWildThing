@@ -58,8 +58,14 @@
     int joyFaultBand = 50; // # of A2D units at each end of joystick range that we interpret as a fault (aka. at/near 0 and at/near full scale)
     bool joyPassed = false; // Flag to indicate the joysick passed setup test
     bool joyInit = false; // Flag to indicate the joysick has been started at least once
-  // Polar Coordinates
-  struct polarCoord{ float Radius; float Angle; }; // joystick input coordinates Radius and Angle
+  // Polar Coordinates data structure
+  struct polarCoord{ float Radius; float Angle; }; // joystick coordinates of Radius and Angle
+
+  // Input Selection
+  int inputMode = -1; // -1 undefined, 0 Occupant Joystick, 1 Tether Joystick
+  int inputMode_prev = -1; // previous input mode
+  int joyOcc = 0; // enumeration for Occupant Joystick
+  int joyTeth = 1; // enumeration for Tether Joystick
 
   // zero crossing variables
     bool motorForward_L = true;
@@ -68,10 +74,7 @@
     float Brake_R = maxBrake ; // RIGHT motor Value to brake for vnh5019, braking is value 0 min and 400 max
     Filter filtMotorReqVel_L(0); // filter for rate limiting motor speeds
     Filter filtMotorReqVel_R(0); // filter for rate limiting motor speeds
-
-  // keeps track of whether we need to set up the joystick or tether in the loop
-    bool usingTether = false;
-    
+   
   // Mix Lookup Tables (converting joystick angle to Left & Right Mix) (3 power settings x 7 points)
     float mixTable_L[15][2]; // Lookuptable to convert joystick angle to Left motor Mix
     float mixTable_R[15][2]; // Lookuptable to convert joystick angle to Right motor Mix

@@ -38,3 +38,16 @@ bool Debounce::debounceLow(bool thisInput) {
   bool isDebounced = (millis() - lastDebounceTime) >= debounceDelay; // isDebounced if no change for debounceDelay ms
   return isDebounced && !thisInput;
 }
+
+bool Debounce::debounceBoth(bool thisInput) {
+  if (thisInput != lastInput) { // reset on change
+    lastDebounceTime = millis();
+    lastInput = thisInput;
+  }
+  bool isDebounced = (millis() - lastDebounceTime) >= debounceDelay; // isDebounced if no change for debounceDelay ms
+  if (isDebounced) {
+    lastOutput = thisInput; //only change if signal is debounced
+  }
+
+  return lastOutput;
+}

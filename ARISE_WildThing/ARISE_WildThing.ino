@@ -43,23 +43,33 @@ void loop() {
     timestep = max(0.1, currentTime - prevTime); // last timestep (ms)
 
   // INPUT FILTER AND DIAGNOSTICS
-    joyInputs_ = joyProcessing(); // reads and filters joystick inputs,  runs diagnostics and returns x.pos, y.pos, radius(r) and angle(a) data, plus diagnostic informationa about joystick
+    joyInputs_ = joyProcessing(joyInputs_); // reads and filters joystick inputs,  runs diagnostics and returns x.pos, y.pos, radius(r) and angle(a) data, plus diagnostic informationa about joystick
+    bool joySwitch_Main_isON = deb_joySwitch_Main.debounceBoth( analogRead(JoySwitch_Main) > 800); // main joystick select switch
     potScale = readPot(PowerLevelPotInput); // Read speed potentiometer and calc potScale
-    usingTether = deb_joySwitch_Main.debounceInput( analogRead(JoySwitch_Main) > 800); // main joystick select switch
   
-  // set joystick requested Angle and Radius according to selected input
-    if(usingTether){ // using tether
-      joyAngle = joyInputs_.T.a;
-      joyRadius = joyInputs_.T.r;
-    } else { // using occupant
-      joyAngle = joyInputs_.O.a;
-      joyRadius = joyInputs_.O.r;
+  // TODO: Make other cases to cover bluetooth or RC?
+  // TODO future will need more logic here to determine if we want to change modes
+    if(joySwitch_Main_isON){
+      inputMode = 1; // tether
+    } else {
+      inputMode = 0; // occupant
     }
 
+  // set requested Angle and Radius according to selected input
+    if(inputMode == 1){ // using tether
+      joyAngle = joyInputs_.T.a;
+      joyRadius = joyInputs_.T.r*TetherDownrate;
+    } else { // using occupant
+      joyAngle = joyInputs_.O.a;
+      joyRadius = joyInputs_.O.r*OccupantDownrate;
+    }
+    inputMode_prev = inputMode;
+  // Always wait for input to come to rest when switching inputs
+
   // Convert Polar Coordinates to Desired Speed & Mix using 2D Joystick Table Lookups 
-    int numRows = sizeof(radTable)/sizeof(radTable[0]);
+    int numRows;
+    numRows = sizeof(radTable)/sizeof(radTable[0]);
     scale = interpolate(joyRadius, radTable, numRows); // calc scale from joyRadius
-    if (usingTether) {scale = scale*TetherDownrate;} else { scale = scale*OccupantDownrate;} // modify scale per customer desired speeds on tether vs onboard joysticks
     numRows = sizeof(mixTable_L)/sizeof(mixTable_L[0]);
     mix_L = interpolate(joyAngle, mixTable_L, numRows); // calc mix_L from joyAngle
     numRows = sizeof(mixTable_R)/sizeof(mixTable_R[0]);

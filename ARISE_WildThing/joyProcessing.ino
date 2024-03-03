@@ -3,9 +3,22 @@
   #include "joyProcessing.h"
   #include "src/Debounce.h"
   #include "src/Filter.h"
-
-struct joyInput joyProcessing() {
+/*
+struct joyInput joyInit() {
     struct joyInput joyInputs_;
+    joyInputs_.O.x.center = 512;
+    joyInputs_.O.y.center = 512;
+    joyInputs_.T.x.health = 0;
+    joyInputs_.T.y.health = 0;
+    
+    joyInputs_.O.learnCount = 0;
+    joyInputs_.T.learnCount = 0;
+
+}
+*/
+
+struct joyInput joyProcessing(struct joyInput joyInputs_) {
+    //struct joyInput joyInputs_;
     // << Read the raw Joystick X and Y positions >>
     joyInputs_.O.x.raw = analogRead(joyX_Occupant);
     joyInputs_.O.y.raw = analogRead(joyY_Occupant);
@@ -25,16 +38,16 @@ struct joyInput joyProcessing() {
     joyInputs_.T.y.filt = filtJoyTy.firstOrdFiltx4(joyInputs_.T.y.raw, joyFiltPct);
 
     // modify health based on noise (inc/decr based on "large" change)
-    joyInputs_.O.x.health = max(0, min(1000, joyInputs_.O.x.health + timestep*((joyInputs_.O.x.raw - joyInputs_.O.x.ref < joyMaxpos) ? joyIncGood : joyDecNoise) ));
-    joyInputs_.O.y.health = max(0, min(1000, joyInputs_.O.y.health + timestep*((joyInputs_.O.y.raw - joyInputs_.O.y.ref < joyMaxpos) ? joyIncGood : joyDecNoise) ));
-    joyInputs_.T.x.health = max(0, min(1000, joyInputs_.T.x.health + timestep*((joyInputs_.T.x.raw - joyInputs_.T.x.ref < joyMaxpos) ? joyIncGood : joyDecNoise) ));
-    joyInputs_.T.y.health = max(0, min(1000, joyInputs_.T.y.health + timestep*((joyInputs_.T.y.raw - joyInputs_.T.y.ref < joyMaxpos) ? joyIncGood : joyDecNoise) ));
+    joyInputs_.O.x.health = max(0, min(1000, joyInputs_.O.x.health + ( abs(joyInputs_.O.x.raw - joyInputs_.O.x.ref) < joyMaxpos ? joyIncGood : joyDecNoise ) ));
+    joyInputs_.O.y.health = max(0, min(1000, joyInputs_.O.y.health + ( abs(joyInputs_.O.y.raw - joyInputs_.O.y.ref) < joyMaxpos ? joyIncGood : joyDecNoise ) ));
+    joyInputs_.T.x.health = max(0, min(1000, joyInputs_.T.x.health + ( abs(joyInputs_.T.x.raw - joyInputs_.T.x.ref) < joyMaxpos ? joyIncGood : joyDecNoise ) ));
+    joyInputs_.T.y.health = max(0, min(1000, joyInputs_.T.y.health + ( abs(joyInputs_.T.y.raw - joyInputs_.T.y.ref) < joyMaxpos ? joyIncGood : joyDecNoise ) ));
 
     // modify health based on OutOfRange (inc/decr if raw measure is outside diagnostic bands)
-    joyInputs_.O.x.health = max(0, min(1000, joyInputs_.O.x.health + timestep*((joyInputs_.O.x.raw>joyFaultBand && joyInputs_.O.x.raw<1023-joyFaultBand) ? joyIncGood : joyDecOOR) ));
-    joyInputs_.O.y.health = max(0, min(1000, joyInputs_.O.y.health + timestep*((joyInputs_.O.y.raw>joyFaultBand && joyInputs_.O.x.raw<1023-joyFaultBand) ? joyIncGood : joyDecOOR) ));
-    joyInputs_.T.x.health = max(0, min(1000, joyInputs_.T.x.health + timestep*((joyInputs_.T.x.raw>joyFaultBand && joyInputs_.T.x.raw<1023-joyFaultBand) ? joyIncGood : joyDecOOR) ));
-    joyInputs_.T.y.health = max(0, min(1000, joyInputs_.T.y.health + timestep*((joyInputs_.T.y.raw>joyFaultBand && joyInputs_.T.x.raw<1023-joyFaultBand) ? joyIncGood : joyDecOOR) ));
+    joyInputs_.O.x.health = max(0, min(1000, joyInputs_.O.x.health + ( (joyInputs_.O.x.raw>joyFaultBand && joyInputs_.O.x.raw<1023-joyFaultBand) ? joyIncGood : joyDecOOR ) ));
+    joyInputs_.O.y.health = max(0, min(1000, joyInputs_.O.y.health + ( (joyInputs_.O.y.raw>joyFaultBand && joyInputs_.O.x.raw<1023-joyFaultBand) ? joyIncGood : joyDecOOR ) ));
+    joyInputs_.T.x.health = max(0, min(1000, joyInputs_.T.x.health + ( (joyInputs_.T.x.raw>joyFaultBand && joyInputs_.T.x.raw<1023-joyFaultBand) ? joyIncGood : joyDecOOR ) ));
+    joyInputs_.T.y.health = max(0, min(1000, joyInputs_.T.y.health + ( (joyInputs_.T.y.raw>joyFaultBand && joyInputs_.T.x.raw<1023-joyFaultBand) ? joyIncGood : joyDecOOR ) ));
 
     // determine if isOK2Learn based on close to center and not moving
     float thisX, thisY;
