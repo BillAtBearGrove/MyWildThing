@@ -38,91 +38,39 @@ void setup() {
 
 void loop() {
   // set timesteps and get time info
-  prevTime = currentTime; // previous timestamp (ms)
-  currentTime = millis(); // current timestamp (ms)
-  timestep = max(0.1, currentTime - prevTime); // last timestep (ms)
+    prevTime = currentTime; // previous timestamp (ms)
+    currentTime = millis(); // current timestamp (ms)
+    timestep = max(0.1, currentTime - prevTime); // last timestep (ms)
 
-  //////////////////////////////////
-  // INPUT FILTER AND DIAGNOSTICS //
-
-  // filter joystick inputs
-  joyInputs_ = joyProcessing();
-  potScale = readPot(PowerLevelPotInput); // Read speed potentiometer and calc potScale
+  // INPUT FILTER AND DIAGNOSTICS
+    joyInputs_ = joyProcessing(); // reads and filters joystick inputs,  runs diagnostics and returns x.pos, y.pos, radius(r) and angle(a) data, plus diagnostic informationa about joystick
+    potScale = readPot(PowerLevelPotInput); // Read speed potentiometer and calc potScale
+    usingTether = deb_joySwitch_Main.debounceInput( analogRead(JoySwitch_Main) > 800); // main joystick select switch
   
-  
-  
-  
-  
-  
-  
-  
-  if(usingTether){ // using tether
-    if (joyInputs_.T.x.health<500 || joyInputs_.T.y.health<500 ) {
-      joyInit = false; joyPassed = false; StopMotors = true;} else {StopMotors = false;
-      }
-  } else {  // using onboard
-    if (joyInputs_.O.x.health<500 || joyInputs_.O.y.health<500 ) {
-      joyInit = false; joyPassed = false; StopMotors = true;} else {StopMotors = false;}
-  }
-  if (!StopMotors && !joyInit) {
-    // <<<< TODO >>>>  CHANGE AutoCenterJoystick() to InitInputs()
-    // Check Joystick and AutoCenter
-      AutoCenterJoystick(); // Check Joystick is near center and not moving, return "at Rest" values if pass test
-  }
-  
-  // <<<< TODO >>>> I don't know where selectJoystick() should go - need to do a logic flow to see what makes sense
-  selectJoystick(); // Check if we use occupant or tether joystick & Interrupt to switch & Autocenter if it changes
-  // << Read the Joystick X and Y positions >>
-  if(usingTether){ // using tether
-    joyPosX = joyInputs_.T.x.pos;
-    joyPosY = joyInputs_.T.y.pos;
-  } else {
-    joyPosX = joyInputs_.O.x.pos;
-    joyPosY = joyInputs_.O.y.pos;
-  }
-
-  if (!joyPassed) {
-    // <<<< TODO >>>> get rid of joyPassed, just use jotInit
-    //setJoystickLearnError();
-      //  TBD
-    // Rescale to set lowest motor on point to motorDropout <NOTE> Dropout is here instead of in scale lookup table because motor dropout cannot be modified by LMix, potScale, etc
-      motorReqVel_L = 0;
-      motorReqVel_R = 0;
-    if (showDetail) {
-      Serial.println("  <<<STOP!!!>>>  "); 
+  // set joystick requested Angle and Radius according to selected input
+    if(usingTether){ // using tether
+      joyAngle = joyInputs_.T.a;
+      joyRadius = joyInputs_.T.r;
+    } else { // using occupant
+      joyAngle = joyInputs_.O.a;
+      joyRadius = joyInputs_.O.r;
     }
-  } else {
-    // Calc joyAngle & joyRadius if good
-      posX = joyPosX; // calc A2D cartesian position from "at Rest"
-      posY = joyPosY; // calc A2D cartesian position from "at Rest"
-      getPolarCoordinates(); // convert cartesian posX and posY of joystick into polar coordinates joyAngle & joyRadius
 
-    // Convert Polar Coordinates to Desired Speed & Mix using 2D Joystick Table Lookups 
-      int numRows = sizeof(radTable)/sizeof(radTable[0]);
-      scale = interpolate(joyRadius, radTable, numRows); // calc scale from joyRadius
-      if (usingTether) {scale = scale*TetherDownrate;} else { scale = scale*OccupantDownrate;} // modify scale per customer desired speeds on tether vs onboard joysticks
-      numRows = sizeof(mixTable_L)/sizeof(mixTable_L[0]);
-      mix_L = interpolate(joyAngle, mixTable_L, numRows); // calc mix_L from joyAngle
-      numRows = sizeof(mixTable_R)/sizeof(mixTable_R[0]);
-      mix_R = interpolate(joyAngle, mixTable_R, numRows); // calc mix_R from joyAngle
-      
-    // Calc desired motor velocity as product of Mix (joystick angle), Scale (joystick radius), potScale Pot) and trimFactor (left vs right motor strength)
-      motorReqVel_L = min( 1, max( mix_L * scale * potScale * (1 + trimFactor), -1)); // limited between +/-1
-      motorReqVel_R = min( 1, max( mix_R * scale * potScale * (1 - trimFactor), -1)); // limited between +/-1
-
-      if(motorReqVel_L != 0){ 
-        float minSpeed_ = (motorReqVel_L>0)? minSpeed:-minSpeed;
-        float maxSpeed_ = (motorReqVel_L>0)? 1:-1;
-        motorReqVel_L = rescale(motorReqVel_L,0,maxSpeed_,minSpeed_,maxSpeed_); // ensure some minimum speed
-      }
-      if(motorReqVel_R != 0){ 
-        float minSpeed_ = (motorReqVel_R>0)? minSpeed:-minSpeed;
-        float maxSpeed_ = (motorReqVel_R>0)? 1:-1;
-        motorReqVel_R = rescale(motorReqVel_R,0,maxSpeed_,minSpeed_,maxSpeed_); // ensure some minimum speed
-      }
-  }
+  // Convert Polar Coordinates to Desired Speed & Mix using 2D Joystick Table Lookups 
+    int numRows = sizeof(radTable)/sizeof(radTable[0]);
+    scale = interpolate(joyRadius, radTable, numRows); // calc scale from joyRadius
+    if (usingTether) {scale = scale*TetherDownrate;} else { scale = scale*OccupantDownrate;} // modify scale per customer desired speeds on tether vs onboard joysticks
+    numRows = sizeof(mixTable_L)/sizeof(mixTable_L[0]);
+    mix_L = interpolate(joyAngle, mixTable_L, numRows); // calc mix_L from joyAngle
+    numRows = sizeof(mixTable_R)/sizeof(mixTable_R[0]);
+    mix_R = interpolate(joyAngle, mixTable_R, numRows); // calc mix_R from joyAngle
+    
+  // Calc desired motor velocity as product of Mix (joystick angle), Scale (joystick radius), potScale Pot)
+    motorReqVel_L = min( 1, max( mix_L * scale * potScale , -1)); // limited between +/-1
+    motorReqVel_R = min( 1, max( mix_R * scale * potScale , -1)); // limited between +/-1
   
-  // Rate Limit Motor Velocity & Delay in case of zero crossing <<< TODO: Change code so inputs/outputs are not invisible - but haven't taken time to figure out how to do it with embedded debounces >>>>
+  // Rate Limit Motor Velocity & Delay in case of zero crossing
+    // <<< TODO: Change code so inputs/outputs are visible - but haven't taken time to figure out how to do it with embedded debounces for zero crossing >>>>
     // <<<<TODO>>>> motorReqVel_filt_L = rateLimitWithZeroCross(motorReqVel_L);
     // <<<<TODO>>>> motorReqVel_filt_R = rateLimitWithZeroCross(motorReqVel_R);
     rateLimitMotors(); // returns motorReqVel_filt_L and motorReqVel_filt_R based on inputs motorReqVel_L and motorReqVel_R | function rate limits and debounces each input
@@ -135,7 +83,5 @@ void loop() {
     debug();
     lastDebugTime = currentTime;
   }
-  // wait x milliseconds before the next loop
-    //  delay(50);
   
 }

@@ -36,13 +36,97 @@ struct joyInput joyProcessing() {
     joyInputs_.T.x.health = max(0, min(1000, joyInputs_.T.x.health + timestep*((joyInputs_.T.x.raw>joyFaultBand && joyInputs_.T.x.raw<1023-joyFaultBand) ? joyIncGood : joyDecOOR) ));
     joyInputs_.T.y.health = max(0, min(1000, joyInputs_.T.y.health + timestep*((joyInputs_.T.y.raw>joyFaultBand && joyInputs_.T.x.raw<1023-joyFaultBand) ? joyIncGood : joyDecOOR) ));
 
+    // determine if isOK2Learn based on close to center and not moving
+    float thisX, thisY;
+    // Occupant
+      thisX = joyInputs_.O.x.filt;
+      thisY = joyInputs_.O.y.filt;
+      if ( thisX >= joyPosRestingMin && thisX <= joyPosRestingMax && thisY >= joyPosRestingMin && thisY <= joyPosRestingMax && abs(joyInputs_.O.x.raw - thisX) <= joyPosRestingTol && abs(joyInputs_.O.y.raw - thisY) <= joyPosRestingTol) {
+        joyInputs_.O.isOK2Learn = isReady2Learn_O.debounceHigh(true);
+      } else {
+        joyInputs_.O.isOK2Learn = isReady2Learn_O.debounceHigh(false);
+      }
+    // Tether
+      thisX = joyInputs_.T.x.filt;
+      thisY = joyInputs_.T.y.filt;
+      if ( thisX >= joyPosRestingMin && thisX <= joyPosRestingMax && thisY >= joyPosRestingMin && thisY <= joyPosRestingMax && abs(joyInputs_.T.x.raw - thisX) <= joyPosRestingTol && abs(joyInputs_.T.y.raw - thisY) <= joyPosRestingTol) {
+        joyInputs_.T.isOK2Learn = isReady2Learn_T.debounceHigh(true);
+      } else {
+        joyInputs_.T.isOK2Learn = isReady2Learn_T.debounceHigh(false);
+      }
+
+    // Calculate Center and increment learnCount if isOK2Learn
+      if (joyInputs_.O.isOK2Learn) {
+        joyInputs_.O.x.center = joyInputs_.O.x.center + joyLearnPct * ( joyInputs_.O.x.filt - joyInputs_.O.x.center);
+        joyInputs_.O.y.center = joyInputs_.O.y.center + joyLearnPct * ( joyInputs_.O.y.filt - joyInputs_.O.y.center);
+        if (joyInputs_.O.learnCount < 10000) { joyInputs_.O.learnCount +=1;} // stop counting after 9999
+      }
+      if (joyInputs_.T.isOK2Learn) {
+        joyInputs_.T.x.center = joyInputs_.T.x.center + joyLearnPct * ( joyInputs_.T.x.filt - joyInputs_.T.x.center);
+        joyInputs_.T.y.center = joyInputs_.T.y.center + joyLearnPct * ( joyInputs_.T.y.filt - joyInputs_.T.y.center);
+        if (joyInputs_.T.learnCount < 10000) { joyInputs_.T.learnCount +=1;} // stop counting after 9999
+      }
+
     // calc pos (distance from center)
-    joyInputs_.O.x.pos = joyInputs_.O.x.filt - joyInputs_.O.x.center;
-    joyInputs_.O.y.pos = joyInputs_.O.y.filt - joyInputs_.O.y.center;
-    joyInputs_.T.x.pos = joyInputs_.T.x.filt - joyInputs_.T.x.center;
-    joyInputs_.T.y.pos = joyInputs_.T.y.filt - joyInputs_.T.y.center;
+      joyInputs_.O.x.pos = joyInputs_.O.x.filt - joyInputs_.O.x.center;
+      joyInputs_.O.y.pos = joyInputs_.O.y.filt - joyInputs_.O.y.center;
+      joyInputs_.T.x.pos = joyInputs_.T.x.filt - joyInputs_.T.x.center;
+      joyInputs_.T.y.pos = joyInputs_.T.y.filt - joyInputs_.T.y.center;
+
+    //  set status as 1=good to use (learned/initialized), 0= not initialized, -1 = bad connection (ex. health <500)
+      if (joyInputs_.O.x.health > 500 && joyInputs_.O.y.health > 500) {
+        if (joyInputs_.O.learnCount >= joyLearnOKCount) {
+          joyInputs_.O.status = 1; // if healthy and learned then OK to use
+        } else {
+          joyInputs_.O.status = 0; // if healthy but not learned then not OK to use
+        }
+      } else {
+        joyInputs_.O.status = -1; // if not healthy then error
+        joyInputs_.O.learnCount = 0; // reset learn count if errored
+      }
+      if (joyInputs_.T.x.health > 500 && joyInputs_.T.y.health > 500) {
+        if (joyInputs_.T.learnCount >= joyLearnOKCount) {
+          joyInputs_.T.status = 1; // if healthy and learned then OK to use
+        } else {
+          joyInputs_.T.status = 0; // if healthy but not learned then not OK to use
+        }
+      } else {
+        joyInputs_.T.status = -1; // if not healthy then error
+        joyInputs_.T.learnCount = 0; // reset learn count if errored
+      }
 
     // calc Radius and Angle
+      if (joyInputs_.O.status == 1) {
+        struct polarCoord polarCoord_O = getPolarCoordinates(joyInputs_.O.x.pos, joyInputs_.O.y.pos);
+        joyInputs_.O.r = polarCoord_O.Radius;
+        joyInputs_.O.a = polarCoord_O.Angle;
+      } else {
+        joyInputs_.O.r = 0;
+        joyInputs_.O.a = 0;
+      }
+      if (joyInputs_.T.status == 1) {
+        struct polarCoord polarCoord_T = getPolarCoordinates(joyInputs_.T.x.pos, joyInputs_.T.y.pos);
+        joyInputs_.T.r = polarCoord_T.Radius;
+        joyInputs_.T.a = polarCoord_T.Angle;
+      } else {
+        joyInputs_.T.r = 0;
+        joyInputs_.T.a = 0;
+      }
+    
+/* // TODO Maybe get rid of this or make it useful for each joystick
+    // adjust joyAngle for joystick installed orientation
+    joyAngle = joyAngle + joyOffsetAngle;
+    // avoid overrun (joyAngle always should be between 0 and 360)
+    if (joyAngle >= 360) {
+      joyAngle = joyAngle - 360;
+      } else {
+        if (joyAngle < 0) {
+          joyAngle = joyAngle + 360;
+        }
+      }
+    // swap spin direction if required
+    if (flipSpin) { joyAngle = map(joyAngle,0,360,360,0); } // reverse direction if flipSpin = true
+*/
 
     return joyInputs_;
 }

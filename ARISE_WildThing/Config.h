@@ -8,19 +8,12 @@ bool showDetail = true; // hide/show details in serialprint
 // Occupant Joystick
 const float joyOffsetAngle_Occupant = 0; // polar orientation of joystick (offset # of degrees to get forward to equal 0) <OCCUPANT>
 const bool flipSpin_Occupant = false; // use true or false to change SPIN direction (flip if chair left/right is wrong) <OCCUPANT>
-const int numSamples_Occupant = 100; // number of samples to check in a "window"
-const int numWindows_Occupant = 100; // maximum attempts to check joystick
 const float OccupantDownrate = 1; // downrate of occupant input for scaling speed (0 to 1)
 
 // Tethered Joystick
 const float joyOffsetAngle_Tether = 0; // polar orientation of joystick (offset # of degrees to get forward to equal 0) <TETHER>
 const bool flipSpin_Tether = false; // use true or false to change SPIN direction (flip if chair left/right is wrong) <TETHER>
-const int numSamples_Tether = 100; // number of samples to check in a "window"
-const int numWindows_Tether = 100; // maximum attempts to check joystick
 const float TetherDownrate = 1.0; // downrate of thether input for scaling speed (0 to 1)
-
-// Straight Ahead Trim Factors
-  const float trimFactor = 0.0; // Calibration to compensate if one motor stronger than the other. Typical 0, with range between +/-10% where positive value will strengthen left motor and weaken the right one
 
   // Angles
   const float spinZone      = 25; // number of degrees above or below East or West that one motor turning and other is stopped

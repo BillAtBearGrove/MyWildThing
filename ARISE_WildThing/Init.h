@@ -45,7 +45,6 @@
     float motorMaxR = 1;
 
   // Joystick Values - Start at 512 (middle position)
-    int joySelect = 0; // <1> Tethered (default) or <2> Occupant <0> Error
     int joyPosX = 512; // 0 to 1023 Range
     int joyPosY = 512; // 0 to 1023 Range
     int joyX; // Horizontal Joystick input; <Changes depending on which joysticks are connected.>
@@ -54,10 +53,13 @@
     bool flipSpin; // use true or false to change SPIN direction (flip if chair forward/reverse is wrong); <Changes depending on which joysticks are connected.>
     int numSamples; // number of samples to check in a "window"
     int numWindows; // maximum attempts to check joystick
+    Debounce deb_joySwitch_Main(200); // define Debounce class to debounce joySwitch
   // Joystick FaultHandling
     int joyFaultBand = 50; // # of A2D units at each end of joystick range that we interpret as a fault (aka. at/near 0 and at/near full scale)
     bool joyPassed = false; // Flag to indicate the joysick passed setup test
     bool joyInit = false; // Flag to indicate the joysick has been started at least once
+  // Polar Coordinates
+  struct polarCoord{ float Radius; float Angle; }; // joystick input coordinates Radius and Angle
 
   // zero crossing variables
     bool motorForward_L = true;

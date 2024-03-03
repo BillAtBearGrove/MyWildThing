@@ -121,19 +121,3 @@ void setJoystickOutOfRangeError(){
       joyRadius = 0;
 }
 
-void setJoystickLearnError(){
-  // If Joystick Fails to learn center, You end up here.
-  joySelect = 0; // <1> Tethered (default) or <2> Occupant <0> Error
-  // Print Joystick Readings;
-  if (showDetail) {
-    Serial.print("Failed Joystick Checks. Stopping Run. "); Serial.print("\n");
-    Serial.print("Occupant X "); Serial.print("\t"); Serial.print(analogRead(joyX_Occupant)); Serial.print("\t");
-    Serial.print("Occupant Y "); Serial.print("\t"); Serial.print(analogRead(joyY_Occupant)); Serial.print("\t");
-    Serial.print("Tether X "); Serial.print("\t"); Serial.print(analogRead(joyX_Tether)); Serial.print("\t");
-    Serial.print("Tether Y "); Serial.print("\t"); Serial.print(analogRead(joyY_Tether)); Serial.print("\t");
-    //Serial.print("JoySwitch_Tether = "); Serial.print(digitalRead(JoySwitch_Tether)); Serial.print("\t");
-    //Serial.print("JoySwitch_Onboard = "); Serial.print(digitalRead(JoySwitch_Onboard)); Serial.print("\t");
-    Serial.print("JoySwitch_Main = "); Serial.print(analogRead(JoySwitch_Main)); Serial.print("\t");
-    Serial.print("\n");
-  }
-}
