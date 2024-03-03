@@ -20,7 +20,7 @@
   float joyMaxRate_Ref = 80; // rate limit applied to joystick x and y inputs to detect noise
   float joyFiltPct_Ref = 0.25; // first order filter factor for joystick x and y inputs to detect noise
   float joyLearnPct = 0.01; // first order filter factor for learning joystick center
-  int joyLearnOKCount = 1000; // number of learn cycles we need before we can use the joystick input
+  int joyLearnOKCount = 100; // number of learn cycles we need before we can use the joystick input
 
   // Joystick FaultHandling
   float joyMaxpos = 30; // threshold pos A2D from Ref to detect noise

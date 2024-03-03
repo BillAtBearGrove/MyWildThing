@@ -14,8 +14,8 @@ void debug(){
     Serial.print("yf = "); Serial.print(joyInputs_.T.y.filt); Serial.print("  "); 
     Serial.print("xref = "); Serial.print(joyInputs_.T.x.ref); Serial.print("  ");
     Serial.print("yref = "); Serial.print(joyInputs_.T.y.ref); Serial.print("  "); 
-//    Serial.print("OK2L = "); Serial.print(joyInputs_.T.isOK2Learn); Serial.print("  ");
-//    Serial.print("LCount = "); Serial.print(joyInputs_.T.learnCount); Serial.print("  ");
+    Serial.print("OK2L = "); Serial.print(joyInputs_.T.isOK2Learn); Serial.print("  ");
+    Serial.print("LCount = "); Serial.print(joyInputs_.T.learnCount); Serial.print("  ");
 //    Serial.print("xc = "); Serial.print(joyInputs_.T.x.center); Serial.print("  ");
 //    Serial.print("yc = "); Serial.print(joyInputs_.T.y.center); Serial.print("  ");
     Serial.print("xp = "); Serial.print(joyInputs_.T.x.pos); Serial.print("  ");

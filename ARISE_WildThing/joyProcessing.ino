@@ -3,19 +3,17 @@
   #include "joyProcessing.h"
   #include "src/Debounce.h"
   #include "src/Filter.h"
-/*
-struct joyInput joyInit() {
-    struct joyInput joyInputs_;
+
+struct joyInput joyReset(struct joyInput joyInputs_) {
     joyInputs_.O.x.center = 512;
     joyInputs_.O.y.center = 512;
     joyInputs_.T.x.health = 0;
     joyInputs_.T.y.health = 0;
-    
     joyInputs_.O.learnCount = 0;
     joyInputs_.T.learnCount = 0;
-
+    return joyInputs_;
 }
-*/
+
 
 struct joyInput joyProcessing(struct joyInput joyInputs_) {
     //struct joyInput joyInputs_;
@@ -72,12 +70,12 @@ struct joyInput joyProcessing(struct joyInput joyInputs_) {
       if (joyInputs_.O.isOK2Learn) {
         joyInputs_.O.x.center = joyInputs_.O.x.center + joyLearnPct * ( joyInputs_.O.x.filt - joyInputs_.O.x.center);
         joyInputs_.O.y.center = joyInputs_.O.y.center + joyLearnPct * ( joyInputs_.O.y.filt - joyInputs_.O.y.center);
-        if (joyInputs_.O.learnCount < 10000) { joyInputs_.O.learnCount +=1;} // stop counting after 9999
+        if (joyInputs_.O.learnCount <= joyLearnOKCount) { joyInputs_.O.learnCount +=1;} // stop counting after 9999
       }
       if (joyInputs_.T.isOK2Learn) {
         joyInputs_.T.x.center = joyInputs_.T.x.center + joyLearnPct * ( joyInputs_.T.x.filt - joyInputs_.T.x.center);
         joyInputs_.T.y.center = joyInputs_.T.y.center + joyLearnPct * ( joyInputs_.T.y.filt - joyInputs_.T.y.center);
-        if (joyInputs_.T.learnCount < 10000) { joyInputs_.T.learnCount +=1;} // stop counting after 9999
+        if (joyInputs_.T.learnCount <= joyLearnOKCount) { joyInputs_.T.learnCount +=1;} // stop counting after 9999
       }
 
     // calc pos (distance from center)

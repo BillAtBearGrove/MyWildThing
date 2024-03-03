@@ -49,11 +49,13 @@ void loop() {
   
   // TODO: Make other cases to cover bluetooth or RC?
   // TODO future will need more logic here to determine if we want to change modes
+    inputMode_prev = inputMode;
     if(joySwitch_Main_isON){
       inputMode = 1; // tether
     } else {
       inputMode = 0; // occupant
     }
+    if(inputMode != inputMode_prev) { joyInputs_ = joyReset(joyInputs_); } //reset if changed mode
 
   // set requested Angle and Radius according to selected input
     if(inputMode == 1){ // using tether
@@ -63,7 +65,7 @@ void loop() {
       joyAngle = joyInputs_.O.a;
       joyRadius = joyInputs_.O.r*OccupantDownrate;
     }
-    inputMode_prev = inputMode;
+
   // Always wait for input to come to rest when switching inputs
 
   // Convert Polar Coordinates to Desired Speed & Mix using 2D Joystick Table Lookups 
