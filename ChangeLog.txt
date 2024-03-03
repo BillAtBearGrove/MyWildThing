@@ -1,0 +1,6 @@
+Delete SPARK & Amazon controller options
+Delete extra Lines & improve Comments
+
+Changed zeroCrossing to debounce if motorVel is zero and allow direction change after debounce, previous version only debounced after direction was detected which adds unnecessary delay sometimes. If you're always debouncing then it's ready earlier in some cases.
+
+Pushed rate limit to AFTER motorDropout calcs to smooth on/off transition 
