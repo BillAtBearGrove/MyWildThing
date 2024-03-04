@@ -88,8 +88,9 @@
     unsigned long prevTime = millis(); // previous timestamp (ms)
     unsigned long RateLimPrevTime = millis(); // current timestamp (ms)
     unsigned long currentTime = millis(); // current timestamp (ms)
-    float timestep = 1;
+    unsigned long timestep = 1;
     unsigned long dT;
+    bool EchoNow = false;
 
   // Current Filters
     Debounce zeroCrossDeb_L(zeroCrossingDwell); // define Debounce class to allocate memory for zero crossing motor direction (ref Debounce.cpp)
@@ -109,5 +110,7 @@
     float potInput=0;
     float PIDout_L = 0;
     float PIDout_R = 0;
+
+  
 
 #endif

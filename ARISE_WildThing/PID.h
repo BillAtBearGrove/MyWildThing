@@ -23,7 +23,7 @@ class PID
     double Out_min = -1;
     double Out_max = 1;
     double Out_prev = 0;
-    double rateLim = 1;
+    double rateLim = 10000;
     unsigned long previousTime;
 };
 

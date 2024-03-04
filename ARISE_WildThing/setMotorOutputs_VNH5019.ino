@@ -30,13 +30,13 @@ void setMotorOutputs_VNH5019(float joyReq_L, float joyReq_R){
     // calculate speed
     float speedCalc_L, speedCalc_R;
     float speedFilt_pct = 0.1;
-    float speedFilt_rate = 0.3;
+    float speedFilt_rate = 5;
     float LowSpeedCutoff = 500;
-    float speedCalcMin_L = motorDir_L *( abs(joyReq_L)*noLoadSpeedFactor*1.5*(1-min(1, max(0,mA_L/LowSpeedCutoff) )) ); // elevated speed to help PID get to Braking in overrun condition
-    float speedCalcMin_R = motorDir_R *( abs(joyReq_R)*noLoadSpeedFactor*1.5*(1-min(1, max(0,mA_R/LowSpeedCutoff) )) ); // elevated speed to help PID get to Braking in overrun condition
+    float speedCalcMin_L = motorDir_L *( abs(speedReq_L)*1.5*(1-min(1, max(0,mA_L/LowSpeedCutoff) )) ); // elevated speed to help PID get to Braking in overrun condition
+    float speedCalcMin_R = motorDir_R *( abs(speedReq_R)*1.5*(1-min(1, max(0,mA_R/LowSpeedCutoff) )) ); // elevated speed to help PID get to Braking in overrun condition
 
-    if (Brake_L>350){
-      speedCalc_L = speedCalc_filt_L.rateLimitedFOF((noLoadSpeedFactor*PIDout_L - (mA_L *( motorForward_L? Ra:-Ra) ) ) * Ke, speedFilt_pct, speedFilt_rate); // Left calculated speed
+    if (Brake_L>0){ //if (Brake_L==maxBrake){
+      speedCalc_L = speedCalc_filt_L.rateLimitedFOF((noLoadSpeedFactor*PIDout_L - (mA_L *( motorForward_L? Ra:-Ra) ) ) * Ke , speedFilt_pct, speedFilt_rate); // Left calculated speed
     } else {
       if (motorDir_L>0) {
         speedCalc_L = speedCalc_filt_L.rateLimitedFOF( max( speedCalcMin_L, (noLoadSpeedFactor*PIDout_L - (mA_L *( motorForward_L? Ra:-Ra) ) ) * Ke) , speedFilt_pct, speedFilt_rate); // Left calculated speed
@@ -44,8 +44,8 @@ void setMotorOutputs_VNH5019(float joyReq_L, float joyReq_R){
         speedCalc_L = speedCalc_filt_L.rateLimitedFOF( min( speedCalcMin_L, (noLoadSpeedFactor*PIDout_L - (mA_L *( motorForward_L? Ra:-Ra) ) ) * Ke) , speedFilt_pct, speedFilt_rate); // Left calculated speed
       }
     }
-    if (Brake_R>350){
-      speedCalc_R = speedCalc_filt_R.rateLimitedFOF((noLoadSpeedFactor*PIDout_R - (mA_R *( motorForward_R? Ra:-Ra) ) ) * Ke, speedFilt_pct, speedFilt_rate); // Left calculated speed
+    if (Brake_R>0){ //if (Brake_R==maxBrake){
+      speedCalc_R = speedCalc_filt_R.rateLimitedFOF((noLoadSpeedFactor*PIDout_R - (mA_R *( motorForward_R? Ra:-Ra) ) ) * Ke , speedFilt_pct, speedFilt_rate); // Left calculated speed
     } else {
       if (motorDir_R>0) {
         speedCalc_R = speedCalc_filt_R.rateLimitedFOF( max( speedCalcMin_R, (noLoadSpeedFactor*PIDout_R - (mA_R *( motorForward_R? Ra:-Ra) ) ) * Ke) , speedFilt_pct, speedFilt_rate); // Left calculated speed
@@ -69,7 +69,7 @@ void setMotorOutputs_VNH5019(float joyReq_L, float joyReq_R){
       motorPwm_L = 0; //reset pwm level if applying brake
       // Drive Brake
       if (Brake_L < maxBrake) {// Braking function (init maxBrake, where maxBrake is latched until motorOut > brakeZone, otherwise scaled from maxBrake to minBrake)
-        Brake_L = minBrake + ((brakeZone - abs(PIDout_L)) * brakeSlope); // amount to brake  (0 to 400)
+        Brake_L = min(Brake_L + maxAccel_Brake*timestep, minBrake + ((brakeZone - abs(PIDout_L)) * brakeSlope)); // amount to brake  (0 to 400)
       }
       md.setM1Brake(Brake_L); // set brake pwm
     } else {
@@ -85,7 +85,7 @@ void setMotorOutputs_VNH5019(float joyReq_L, float joyReq_R){
       motorPwm_R = 0; //reset pwm level if applying brake
       // Drive Brake
       if (Brake_R < maxBrake) {// Braking function (init maxBrake, where maxBrake is latched until motorOut > brakeZone, otherwise scaled from maxBrake to minBrake)
-        Brake_R = minBrake + ((brakeZone - abs(PIDout_R)) * brakeSlope); // amount to brake  (0 to 400)
+        Brake_R = min(Brake_R + maxAccel_Brake*timestep, minBrake + ((brakeZone - abs(PIDout_R)) * brakeSlope)); // amount to brake  (0 to 400)
       }
       md.setM2Brake(Brake_R); // set brake pwm
     } else {
@@ -95,33 +95,35 @@ void setMotorOutputs_VNH5019(float joyReq_L, float joyReq_R){
       motorPwm_R = (motorDropout + pwmSlope * (abs(PIDout_R) - brakeZone) ) * motorDir_R;
       md.setM2Speed( motorPwm_R * 400 ); // set motor drive pwm
     }
-    if ( currentTime - lastDebugTime >= debugPeriod) {
+
+    if (EchoSetMotors && EchoNow) {
 /*
       Serial.print("R: ");
       Serial.print("joyReq "); Serial.print(joyReq_R); Serial.print(" ");
       Serial.print("speedReq_R "); Serial.print(speedReq_R); Serial.print(" ");
       Serial.print("M1Speed "); Serial.print(motorPwm_R*400); Serial.print(" ");
-//      Serial.print("mA "); Serial.print(mA_R); Serial.print(" ");
+      Serial.print("mA "); Serial.print(mA_R); Serial.print(" ");
       Serial.print("SpeedTarget "); Serial.print(speedReq_R); Serial.print(" ");
       Serial.print("speedCalcMin "); Serial.print(speedCalcMin_R); Serial.print(" ");
       Serial.print("speedCalc "); Serial.print(speedCalc_R); Serial.print(" ");
       Serial.print("speedErr "); Serial.print(speedReq_R-speedCalc_R); Serial.print(" ");
       Serial.print("PIDout "); Serial.print(PIDout_R); Serial.print(" ");
-//      Serial.print("Brake "); Serial.print(Brake_R); Serial.print(" ");
+      Serial.print("Brake "); Serial.print(Brake_R); Serial.print(" ");
 */
+
       Serial.print("L: ");
-      Serial.print("joyReq "); Serial.print(joyReq_L); Serial.print(" ");
-      Serial.print("speedReq "); Serial.print(speedReq_L); Serial.print(" ");
-      Serial.print("M1Speed "); Serial.print(motorPwm_L*400); Serial.print(" ");
-//      Serial.print("mA "); Serial.print(mA_L); Serial.print(" ");
+      //Serial.print("joyReq "); Serial.print(joyReq_L); Serial.print(" ");
+      //Serial.print("speedReq "); Serial.print(speedReq_L); Serial.print(" ");
+      Serial.print("mA "); Serial.print(mA_L); Serial.print(" ");
       Serial.print("SpeedTarget "); Serial.print(speedReq_L); Serial.print(" ");
-      Serial.print("speedCalcMin "); Serial.print(speedCalcMin_L); Serial.print(" ");
+      //Serial.print("speedCalcMin "); Serial.print(speedCalcMin_L); Serial.print(" ");
       Serial.print("speedCalc "); Serial.print(speedCalc_L); Serial.print(" ");
       Serial.print("speedErr "); Serial.print(speedReq_L-speedCalc_L); Serial.print(" ");
       Serial.print("PIDout "); Serial.print(PIDout_L); Serial.print(" ");
-//      Serial.print("Brake "); Serial.print(Brake_L); Serial.print(" ");
+      Serial.print("M1Speed "); Serial.print(motorPwm_L*400); Serial.print(" ");
+      Serial.print("Brake "); Serial.print(Brake_L); Serial.print(" ");
 
-      Serial.println("");
+
     }
 
 }

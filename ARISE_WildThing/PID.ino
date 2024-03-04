@@ -26,6 +26,26 @@ double PID::calc(double Error, double FFterm ) {
     Error_prev = Error;
     Iterm_prev = Iterm;
     Out_prev = OUT;
+
+      if (EchoPID && motorReqVel_filt_L == FFterm) {
+        if (EchoNow) {
+          Serial.print("Err= "); Serial.print(Error); Serial.print("  ");
+          Serial.print("FF= "); Serial.print(FFterm); Serial.print("  ");
+          Serial.print("P= "); Serial.print(Pterm); Serial.print("  ");
+          Serial.print("D= "); Serial.print(Dterm); Serial.print("  ");
+          //Serial.print("Out_min= "); Serial.print(Out_min); Serial.print("  ");
+          //Serial.print("Out_max= "); Serial.print(Out_max); Serial.print("  ");
+          //Serial.print("rateLim= "); Serial.print(rateLim); Serial.print("  ");
+          //Serial.print("dT= "); Serial.print(dT); Serial.print("  ");
+          //Serial.print("Pre+rLdT= "); Serial.print(Out_prev + rateLim*dT); Serial.print("  ");
+          //Serial.print("thisMin= "); Serial.print(thisMin); Serial.print("  ");
+          //Serial.print("thisMax= "); Serial.print(thisMax); Serial.print("  ");
+          Serial.print("FPD= "); Serial.print(FPDterm); Serial.print("  ");
+          Serial.print("I= "); Serial.print(Iterm); Serial.print("  ");
+          Serial.print("OUT= "); Serial.print(OUT*100); Serial.print("  ");\
+        }
+      }
+
     return OUT;
 }
 

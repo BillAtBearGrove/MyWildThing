@@ -4,6 +4,10 @@
 #define Config_H
 
 bool showDetail = true; // hide/show details in serialprint
+int debugPeriod = 200; // ms time between serialprint debug when running
+bool EchoPID = false;
+bool EchoSetMotors = false;
+bool EchoJoyTether = false;
 
 // Occupant Joystick
 //const float joyOffsetAngle_Occupant = 0; // polar orientation of joystick (offset # of degrees to get forward to equal 0) <OCCUPANT>
@@ -32,7 +36,7 @@ const float TetherDownrate = 1.0; // downrate of thether input for scaling speed
     const float TrimMinus = 0.1 ; // range: 0.00 to 0.2 Minus Speed for Inside Wheel within TrimAngle (% output for Motor pwm)
 
 // Radius Lookup Table (Scale)
-  const float Deadband   = .05 ; // 0 to .1 (%) suggested around rest position before moving (NOTE this will be used in + and - directions, so actual deadband is 2x)
+  const float Deadband   = 0.05 ; // 0 to .1 (%) suggested around rest position before moving (NOTE this will be used in + and - directions, so actual deadband is 2x)
   const float motorDropout = 0.05; // typical range: 0.01 to 0.15 ;motor dropout ( % of motorMaxSpeed ) Set this to the minimum % it takes to drive the motor. "Too high" will cause troubles when turning because the inside motor "will not shut off smoothly"
   const float brakeZone = 0.05; // typical range: 0.01 to 0.15 ; % of desired speed = transition point to switch to/from braking & driving PWM when converting motor desired speed
   const float Endband    = .01 ; // 0 to .1 (%) suggested at end of range to ignore
@@ -42,15 +46,14 @@ const float TetherDownrate = 1.0; // downrate of thether input for scaling speed
 // Acceleration & Deceleration Limits
   const float maxAccel = 0.0001 ; // est. range: 0.0001 to 1 max acceleration of motor % per ms
   const float maxDecel = 0.0002 ; // est. range: 0.0001 to 1 max deceleration of motor % per ms
-  const float maxAccel_Brake = 0.01; // 0.00007 ; // est. range: 0.0001 to 1 max acceleration of motor % per ms Below MotorDropout
-  const float maxDecel_Brake = 0.00003; // est. range: 0.0001 to 1 max deceleration of motor % per ms Below MotorDropout
-  const float zeroCrossingDwell = 50 ; // time (ms) to keep motor off between changes in direction
-  const float Brake_Ramp = 0.5 ; // per ms ramp rate to turn on braking for vnh5019.
+  const float maxAccel_Brake = 0.0001; // 0.00007 ; // est. range: 0.0001 to 1 max acceleration of motor % per ms Below MotorDropout
+  const float maxDecel_Brake = 0.0002; // est. range: 0.0001 to 1 max deceleration of motor % per ms Below MotorDropout
+  const float zeroCrossingDwell = 500 ; // time (ms) to keep motor off between changes in direction
   const float maxBrake = 400 ; // max braking for vnh5019
-  const float minBrake = 50 ; // min braking for vnh5019
+  const float minBrake = 10 ; // min braking for vnh5019
 
 // rescales the potentiometer output to get a speed multiplier
-  float potValueRescale[4] = {30, 990, minSpeed + 0.05 * (maxSpeed - minSpeed), maxSpeed}; // cheap pot 
+  float potValueRescale[4] = {30, 990, minSpeed + 0.1 * (maxSpeed - minSpeed), maxSpeed}; // cheap pot 
   //float potValueRescale[4] = {550, 950, minSpeed + 0.1 * (maxSpeed - minSpeed), maxSpeed}; // fancy pot
 
 // JOYSTICK STARTUP TEST CALIBRATIONS
@@ -64,12 +67,12 @@ const float TetherDownrate = 1.0; // downrate of thether input for scaling speed
   float Ke = 1.05; // 1/Kt
   float Ra = 0.0035; // Ohm/1000
 
-  double Kp = 0.01;
-  double Ki = 0.1; //0.01; //0.00002;
-  double Kd = 0;
-  double iForget = 0.01; // 0-1 = % to forget the Integrator each step
+  double Kp = 0.03; //10; //0.015;3
+  double Ki = 0.001; //0.001; //0.002;
+  double Kd = 1; //0.02;
+  double iForget = 0.005; // 0-1 = % to forget the Integrator each step
   double PID_min = -1;
   double PID_max = 1;
-  double PID_rateLim = 0.001;
+  double PID_rateLim = 0.005; //0.001
 
 #endif

@@ -16,7 +16,6 @@
   #include "joyProcessing.h";
   DualVNH5019MotorShield md; //setup vnh5019 method
 
-  int debugPeriod = 100; // time between serialprint debug when running
   unsigned long lastDebugTime = millis(); // only send serialmonitor debug() every debugPeriod ms
   struct joyInput joyInputs_;
   
@@ -41,6 +40,13 @@ void loop() {
     prevTime = currentTime; // previous timestamp (ms)
     currentTime = millis(); // current timestamp (ms)
     timestep = max(0.1, currentTime - prevTime); // last timestep (ms)
+    if ( currentTime - lastDebugTime >= debugPeriod) {
+      Serial.println("");
+      EchoNow = true;
+      lastDebugTime = currentTime;
+    } else {
+      EchoNow = false;
+    }
 
   // INPUT FILTER AND DIAGNOSTICS
     joyInputs_ = joyProcessing(joyInputs_); // reads and filters joystick inputs,  runs diagnostics and returns x.pos, y.pos, radius(r) and angle(a) data, plus diagnostic informationa about joystick
@@ -91,9 +97,8 @@ void loop() {
     setMotorOutputs_VNH5019(motorReqVel_filt_L, motorReqVel_filt_R);
 
   // Print info to Serial screen
-  if ( currentTime - lastDebugTime >= debugPeriod) {
+  if (EchoNow) {
     debug();
-    lastDebugTime = currentTime;
   }
   
 }
