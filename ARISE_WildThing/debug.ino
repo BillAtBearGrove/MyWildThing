@@ -6,7 +6,26 @@ void debug(){
 //    Serial.print("joyPassed = "); Serial.print(joyPassed); Serial.print("  ");
 //    Serial.print("joyInit = "); Serial.print(joyInit); Serial.print("  ");
 
+  if (EchoJoyOcc){
+    Serial.print("OCC:"); Serial.print("  ");
+    Serial.print("xraw = "); Serial.print(joyInputs_.O.x.raw); Serial.print("  ");
+    Serial.print("yraw = "); Serial.print(joyInputs_.O.y.raw); Serial.print("  ");
+    Serial.print("xf = "); Serial.print(joyInputs_.O.x.filt); Serial.print("  ");
+    Serial.print("yf = "); Serial.print(joyInputs_.O.y.filt); Serial.print("  "); 
+//    Serial.print("xref = "); Serial.print(joyInputs_.O.x.ref); Serial.print("  ");
+//    Serial.print("yref = "); Serial.print(joyInputs_.O.y.ref); Serial.print("  "); 
+    Serial.print("OK2L = "); Serial.print(joyInputs_.O.isOK2Learn); Serial.print("  ");
+    Serial.print("LCount = "); Serial.print(joyInputs_.O.learnCount); Serial.print("  ");
+    Serial.print("xc = "); Serial.print(joyInputs_.O.x.center); Serial.print("  ");
+    Serial.print("yc = "); Serial.print(joyInputs_.O.y.center); Serial.print("  ");
+//    Serial.print("xp = "); Serial.print(joyInputs_.O.x.pos); Serial.print("  ");
+//    Serial.print("yp = "); Serial.print(joyInputs_.O.y.pos); Serial.print("  ");
+//    Serial.print("xH = "); Serial.print(joyInputs_.O.x.health); Serial.print("  ");
+//    Serial.print("yH = "); Serial.print(joyInputs_.O.y.health); Serial.print("  ");
+    Serial.print("stat = "); Serial.print(joyInputs_.O.status); Serial.print("  ");
+  }
   if (EchoJoyTether){
+    Serial.print("TETH:"); Serial.print("  ");
     Serial.print("xraw = "); Serial.print(joyInputs_.T.x.raw); Serial.print("  ");
     Serial.print("yraw = "); Serial.print(joyInputs_.T.y.raw); Serial.print("  ");
     Serial.print("xf = "); Serial.print(joyInputs_.T.x.filt); Serial.print("  ");

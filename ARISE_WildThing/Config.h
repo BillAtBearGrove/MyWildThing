@@ -8,6 +8,7 @@ int debugPeriod = 200; // ms time between serialprint debug when running
 bool EchoPID = false;
 bool EchoSetMotors = false;
 bool EchoJoyTether = false;
+bool EchoJoyOcc = true;
 
 // Occupant Joystick
 //const float joyOffsetAngle_Occupant = 0; // polar orientation of joystick (offset # of degrees to get forward to equal 0) <OCCUPANT>
@@ -24,8 +25,8 @@ const float TetherDownrate = 1.0; // downrate of thether input for scaling speed
   const float TrimAngle = 10; // degrees travel on either side of forward/backward that is treated as true forward/backward
   const float spinDwell     = 3; // degrees travel on either side of left/right that is treated as true spin
   // Speeds
-  const float minSpeed = 0.1; // overall scaling for all Vehicle speeds (except motorDropout which remains fixed)
-  const float maxSpeed = 0.5; // overall scaling for all Vehicle speeds (except motorDropout which remains fixed)
+  const float minSpeed = 0.16; // overall scaling for all Vehicle speeds (except motorDropout which remains fixed)
+  const float maxSpeed = 0.4; // overall scaling for all Vehicle speeds (except motorDropout which remains fixed)
     // Detailed Speeds (relative to maxSpeed)
     const float motorForward_PowerLevels = 1.0 ; // range: 0.01 to 1 max FORWARD Speed  (% output for Motor pwm)
     const float motorReverse_PowerLevels = 0.75 ; // range: 0.01 to 1 max REVERSE Speed (% output for Motor pwm)
@@ -44,21 +45,21 @@ const float TetherDownrate = 1.0; // downrate of thether input for scaling speed
   const float SlowPower  = 0.2 ; // 0 to 1 (%) of Power to use for low speed control (y-axis end of 1st ramp & begin 2nd ramp in lookup table)
 
 // Acceleration & Deceleration Limits
-  const float maxAccel = 0.0001 ; // est. range: 0.0001 to 1 max acceleration of motor % per ms
-  const float maxDecel = 0.0002 ; // est. range: 0.0001 to 1 max deceleration of motor % per ms
+  const float maxAccel = 0.00007 ; // est. range: 0.0001 to 1 max acceleration of motor % per ms
+  const float maxDecel = 0.006 ; // est. range: 0.0001 to 1 max deceleration of motor % per ms
   const float maxAccel_Brake = 0.0001; // 0.00007 ; // est. range: 0.0001 to 1 max acceleration of motor % per ms Below MotorDropout
-  const float maxDecel_Brake = 0.0002; // est. range: 0.0001 to 1 max deceleration of motor % per ms Below MotorDropout
-  const float zeroCrossingDwell = 500 ; // time (ms) to keep motor off between changes in direction
+  const float maxDecel_Brake = 0.000016; // est. range: 0.0001 to 1 max deceleration of motor % per ms Below MotorDropout
+  const float zeroCrossingDwell = 200 ; // time (ms) to keep motor off between changes in direction
   const float maxBrake = 400 ; // max braking for vnh5019
   const float minBrake = 10 ; // min braking for vnh5019
 
 // rescales the potentiometer output to get a speed multiplier
-  float potValueRescale[4] = {30, 990, minSpeed + 0.1 * (maxSpeed - minSpeed), maxSpeed}; // cheap pot 
+  float potValueRescale[4] = {30, 990, minSpeed, maxSpeed}; // cheap pot 
   //float potValueRescale[4] = {550, 950, minSpeed + 0.1 * (maxSpeed - minSpeed), maxSpeed}; // fancy pot
 
 // JOYSTICK STARTUP TEST CALIBRATIONS
-  int joyPosRestingMin = (512 - 32); // min assumed "resting" position (0-1023 A2D)
-  int joyPosRestingMax = (512 + 32); // max assumed 'resting" position (0-1023 A2D)
+  int joyPosRestingMin = (512 - 64); // min assumed "resting" position (0-1023 A2D)
+  int joyPosRestingMax = (512 + 64); // max assumed 'resting" position (0-1023 A2D)
   int joyPosRestingTol = 16; // max allowable noise at rest (total range max-min recorded during check) (0-1023 A2D)
 
   float mA_Rate = 2; // rate limit applied to current measure
@@ -67,12 +68,12 @@ const float TetherDownrate = 1.0; // downrate of thether input for scaling speed
   float Ke = 1.05; // 1/Kt
   float Ra = 0.0035; // Ohm/1000
 
-  double Kp = 0.03; //10; //0.015;3
-  double Ki = 0.001; //0.001; //0.002;
-  double Kd = 1; //0.02;
-  double iForget = 0.005; // 0-1 = % to forget the Integrator each step
+  double Kp = 0.01; //10; //0.015;3
+  double Ki = 0.; //0.001; //0.002;
+  double Kd = 0; //1; //0.02;
+  double iForget = 0.005; // 0.005; // 0-1 = % to forget the Integrator each step
   double PID_min = -1;
   double PID_max = 1;
-  double PID_rateLim = 0.005; //0.001
+  double PID_rateLim = 0.001; //0.005; //0.001;
 
 #endif

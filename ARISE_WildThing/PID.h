@@ -10,7 +10,7 @@ class PID
     double calc(double Error, double FFterm = 0);
     void setConstants(double Kp_, double Ki_, double Kd_, double iForget_ = 0); // setConstants(double Kp, double Ki, double Kd, optional double iForget = 0)
     void setLimits(double Out_min_, double Out_max_);
-    void setRateLimit(double rateLim_);
+    void setRateLimit(double rateLimInc_, double rateLimDec_ = 0);
     void reset(double resetValue);
 
   private:
@@ -23,7 +23,8 @@ class PID
     double Out_min = -1;
     double Out_max = 1;
     double Out_prev = 0;
-    double rateLim = 10000;
+    double rateLimInc = 10000;
+    double rateLimDec = 10000;
     unsigned long previousTime;
 };
 

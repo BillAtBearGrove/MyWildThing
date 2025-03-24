@@ -16,8 +16,8 @@ double PID::calc(double Error, double FFterm ) {
 
     double Pterm = Kp * Error;
     double Dterm = Kd * ( Error - Error_prev ) / dT;
-    double thisMax = max(Out_min, min(Out_max, Out_prev + rateLim*dT ));
-    double thisMin = min(Out_max, max(Out_min, Out_prev - rateLim*dT ));
+    double thisMax = max(Out_min, min(Out_max, Out_prev + rateLimInc*dT ));
+    double thisMin = min(Out_max, max(Out_min, Out_prev - rateLimDec*dT ));
     double FPDterm = min( thisMax, max( thisMin, FFterm + Pterm + Dterm )); // Pterm + Dterm + FeedForwardterm (limited to overall Min/Max and rate limited from previous OUT value)
     
     double Iterm = min( thisMax - FPDterm, max( thisMin - FPDterm, (Ki * Error * dT) + ( (1-(iForget*dT) ) * Iterm_prev ) ));
@@ -63,8 +63,13 @@ void PID::setLimits(double Out_min_, double Out_max_) {
     return void();
 }
 
-void PID::setRateLimit(double rateLim_) {
-    rateLim = rateLim_;
+void PID::setRateLimit(double rateLimInc_, double rateLimDec_) {
+    rateLimInc = rateLimInc_;
+    if (rateLimDec_==0){
+      rateLimDec = rateLimInc_;
+    } else {
+      rateLimDec = rateLimDec_;
+    }
     return void();
 }
 
