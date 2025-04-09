@@ -1,3 +1,30 @@
+/*
+****************************************************************
+ARISE Adaptive Design
+Project: WildThing ESP32 Port
+Author: Bill Smith (unchanged code)
+****************************************************************
+*
+Change Log:
+-Changes Made. MM.DD.YYYY
+--Initial codebase - 11.21.2024
+****************************************************************
+Notes:
+-Note. MM.DD.YYYY
+--Initial codebase - 11.21.2024
+****************************************************************
+*/
+
+#include "../include/joystickFunctions.h"
+#include "../include/init.h"
+#include "../include/Config.h"
+#include "../include/pinouts.h"
+#include <Arduino.h>
+#include "../include/algorithm.h"
+#include <math.h>
+#include "../include/globals.h"
+
+
 // custom functions for x-y joysticks
 
 void createJoystickTables() {
@@ -28,8 +55,8 @@ void createJoystickTables() {
       { 360              , motorForward_PowerLevels }
   };
   memcpy(mixTable_L, mixTableTemp_L, sizeof(mixTableTemp_L));
-    
-  // Generate LookupTables for R Mix  
+
+  // Generate LookupTables for R Mix
   float mixTableTemp_R[15][2] = {
       { 0                , motorForward_PowerLevels },
       { trimAngle , motorForward_PowerLevels - trimMinus},
@@ -46,7 +73,7 @@ void createJoystickTables() {
       { 270 + spinZone, motorTurnFor_PowerLevels },
       { 360 - trimAngle, motorForward_PowerLevels + trimPlus },
       { 360              , motorForward_PowerLevels }
-    
+
   };
   memcpy(mixTable_R, mixTableTemp_R, sizeof(mixTableTemp_R));
 
@@ -62,5 +89,5 @@ void createJoystickTables() {
       { 1             , 1 }
   };
   memcpy(radTable, radTableTemp, sizeof(radTableTemp));
-  
+
 }

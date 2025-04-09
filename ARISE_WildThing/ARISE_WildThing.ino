@@ -6,18 +6,20 @@
   this version contains Speed Control trials
 */
 
-  #include "src/Debounce.h"
-  #include "src/Filter.h"
-  #include "PID.h"
-  #include "src/DualVNH5019MotorShield.h";
-  #include "pinouts.h"; // Use for VNH5019 MotorShield
-  #include "Config.h";
-  #include "Init.h";
-  #include "joyProcessing.h";
+  #include "include/Debounce.h"
+  #include "include/Filter.h"
+  #include "include/PID.h"
+  #include "include/DualVNH5019MotorShield.h"
+  #include "include/pinouts.h" // Use for VNH5019 MotorShield
+  #include "include/Config.h"
+  #include "include/Init.h"
+  #include "include/miscFunctions.h"
+  #include "include/joyHealth.h"
+  #include "include/joystickFunctions.h"
   DualVNH5019MotorShield md; //setup vnh5019 method
 
   unsigned long lastDebugTime = millis(); // only send serialmonitor debug() every debugPeriod ms
-  struct joyInput joyInputs_;
+  struct joyInputs joyInputs_;
   
 void setup() {
   Serial.begin(115200); // set communication between computer & Arduino
@@ -49,7 +51,7 @@ void loop() {
     }
 
   // INPUT FILTER AND DIAGNOSTICS
-    joyInputs_ = joyProcessing(joyInputs_); // reads and filters joystick inputs,  runs diagnostics and returns x.pos, y.pos, radius(r) and angle(a) data, plus diagnostic informationa about joystick
+    joyInputs_ = joyHealth(joyInputs_); // reads and filters joystick inputs,  runs diagnostics and returns x.pos, y.pos, radius(r) and angle(a) data, plus diagnostic informationa about joystick
     bool joySwitch_Main_isON = deb_joySwitch_Main.debounceBoth( analogRead(JoySwitch_Main) > a2dMid); // main joystick select switch
     potScale = readPot(powerLevelPotInput); // Read speed potentiometer and calc potScale
   

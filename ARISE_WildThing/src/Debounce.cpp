@@ -1,6 +1,24 @@
+/*
+****************************************************************
+ARISE Adaptive Design
+Project: WildThing ESP32 Port
+Author: Bill Smith (unchanged code)
+****************************************************************
+*
+Change Log:
+-Changes Made. MM.DD.YYYY
+--Initial codebase - 11.21.2024
+****************************************************************
+Notes:
+-Note. MM.DD.YYYY
+--Initial codebase - 11.21.2024
+****************************************************************
+*/
+
 // Debounce.cpp
 // Boolean debounce library
-#include "Debounce.h"
+#include "../include/Debounce.h"
+#include <Arduino.h>
 
 // usage example
   //Debounce myDebounce1(debounce_ms); // defines Debounce with a debounce_ms delay

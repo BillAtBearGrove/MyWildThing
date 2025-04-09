@@ -1,6 +1,40 @@
+/*
+****************************************************************
+ARISE Adaptive Design
+Project: WildThing ESP32 Port
+Author: Bill Smith (unchanged code)
+****************************************************************
+*
+Change Log:
+-Changes Made. MM.DD.YYYY
+--Initial codebase - 11.21.2024
+****************************************************************
+Notes:
+-Note. MM.DD.YYYY
+--Initial codebase - 11.21.2024
+****************************************************************
+*/
+
 // misc functions
 
-float interpolate(float x, const float table[][2], int numRows) {
+#include "../include/miscFunctions.h"
+#include "../include/init.h"
+#include "../include/Config.h"
+#include "../include/pinouts.h"
+#include "../include/Debounce.h"
+#include "../include/Filter.h"
+#include "../include/algorithm.h"
+#include "../include/globals.h"
+
+// Initilialize Filters
+Filter motorLfilt = Filter(0.0); // filter for rate limiting motor speeds
+Filter motorRfilt = Filter(0.0); // filter for rate limiting motor speeds
+
+// Initialize debouncers
+Debounce zeroCrossDebL = Debounce(zeroCrossingDwell); // define Debounce class to allocate memory for zero crossing motor direction (ref Debounce.cpp)
+Debounce zeroCrossDebR = Debounce(zeroCrossingDwell); // define Debounce class to allocate memory for zero crossing motor direction (ref Debounce.cpp)
+
+float interpolate(float x, float table[][2], int numRows) {
   // Function to perform linear interpolation on a 2D lookup table
 
   // Check if x is outside the range of the table
@@ -26,7 +60,7 @@ float interpolate(float x, const float table[][2], int numRows) {
     }
   }
   // next i
-  
+
   return table[numRows - 1][1]; // if not found return last y
 }
 
@@ -38,7 +72,8 @@ void rateLimitMotors() {
   // Rate Limit Motor Velocity & Delay in case of zero crossing
   ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-    float dT = max(0.1, millis() - RateLimPrevTime); // this timestep (ms)
+  float dT = max(0.1, millis() - RateLimPrevTime); // this timestep (ms)
+  //float dT = std::max(1.0F, (float)(millis() - RateLimPrevTime)); // this timestep (ms) // ESP32
     RateLimPrevTime = millis();
 
     float maxAccel_L = maxAccel*dT;
@@ -53,7 +88,7 @@ void rateLimitMotors() {
     if(abs(motorReqVel_filt_R)<brakeZone){
       maxAccel_R = maxAccel_Brake*dT;
       maxDecel_R = maxDecel_Brake*dT;
-    }    
+    }
 
     // check if xxx_Filt is 0; ok2ChangeDir_L = true if xxx_Filt is 0 for debounced time
     // because if xxx_Filt changes direction then we want to wait until ok2ChangeDir_x is true so we don't spike current or cause clunky behavior
@@ -61,10 +96,10 @@ void rateLimitMotors() {
     bool motorIsOff_R = motorReqVel_filt_R==0;
     bool motorForwardReq_L = motorReqVel_L >= 0;
     bool motorForwardReq_R = motorReqVel_R >= 0;
-    
+
     int ok2ChangeDir_L = zeroCrossDeb_L.debounceHigh(motorIsOff_L); // debounce if motor desired velocity is 0 for debounced time
     int ok2ChangeDir_R = zeroCrossDeb_R.debounceHigh(motorIsOff_R); // debounce if motor desired velocity is 0 for debounced time
-        
+
     // rate limit LEFT motor
     if ( (motorForward_L == motorForwardReq_L) || ok2ChangeDir_L ) {
         motorReqVel_filt_L = filtMotorReqVel_L.rateLimit(motorReqVel_L, maxAccel_L, maxDecel_L); // Rate Limit motor_Vel
@@ -77,7 +112,7 @@ void rateLimitMotors() {
         motorReqVel_filt_R = filtMotorReqVel_R.rateLimit(motorReqVel_R, maxAccel_R, maxDecel_R); // Rate Limit motor_Vel
       } else { // changing direction and waiting for debounce
         motorReqVel_filt_R = filtMotorReqVel_R.rateLimit(0, maxAccel_R, maxDecel_R); // keep at 0
-      }
+    }
 
     // keep track of motor direction (Note velocity of 0 does not change direction)
     if (motorReqVel_filt_L > 0) { // last direction is forward (motorForward_L initialized as true)
@@ -121,3 +156,19 @@ void setJoystickOutOfRangeError(){
       joyRadius = 0;
 }
 
+void setJoystickLearnError(){
+  // If Joystick Fails to learn center, You end up here.
+  joySelect = 0; // <1> Tethered (default) or <2> Occupant <0> Error
+  // Print Joystick Readings;
+  if (showDetail) {
+    Serial.print("Failed Joystick Checks. Stopping Run. "); Serial.print("\n");
+    Serial.print("Occupant X "); Serial.print("\t"); Serial.print(adc1_get_raw(joyX_Occupant)); Serial.print("\t");
+    Serial.print("Occupant Y "); Serial.print("\t"); Serial.print(adc1_get_raw(joyY_Occupant)); Serial.print("\t");
+    Serial.print("Tether X "); Serial.print("\t"); Serial.print(adc1_get_raw(joyX_Tether)); Serial.print("\t");
+    Serial.print("Tether Y "); Serial.print("\t"); Serial.print(adc1_get_raw(joyY_Tether)); Serial.print("\t");
+    //Serial.print("JoySwitch_Tether = "); Serial.print(digitalRead(JoySwitch_Tether)); Serial.print("\t");
+    //Serial.print("JoySwitch_Onboard = "); Serial.print(digitalRead(JoySwitch_Onboard)); Serial.print("\t");
+    Serial.print("JoySwitch_Main = "); Serial.print(digitalRead(JoySwitch_Main)); Serial.print("\t");
+    Serial.print("\n");
+  }
+}

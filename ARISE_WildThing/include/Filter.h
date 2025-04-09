@@ -1,7 +1,25 @@
-// Filter.h
-#ifndef Filter_h
-#define Filter_h
+/*
+****************************************************************
+ARISE Adaptive Design
+Project: WildThing ESP32 Port
+Author: Bill Smith
+****************************************************************
+*
+Change Log:
+-Changes Made. MM.DD.YYYY
+--Initial codebase - 11.21.2024
+****************************************************************
+Notes:
+-Note. MM.DD.YYYY
+--Initial codebase - 11.21.2024
+****************************************************************
+*/
 
+#pragma once
+
+// Filter.h
+#ifndef FILTER_H
+#define FILTER_H
 #include "Arduino.h"
 
 class Filter

@@ -1,11 +1,24 @@
+/*
+****************************************************************
+ARISE Adaptive Design
+Project: WildThing ESP32 Port
+Author: Bill Smith
+****************************************************************
+*
+Change Log:
+-Changes Made. MM.DD.YYYY
+--Initial codebase - 11.21.2024
+****************************************************************
+Notes:
+-Note. MM.DD.YYYY
+--Initial codebase - 11.21.2024
+****************************************************************
+*/
+
 #pragma once
 
-#if defined(__AVR_ATmega168__) || defined(__AVR_ATmega328P__) || \
-    defined(__AVR_ATmega328PB__) || defined (__AVR_ATmega32U4__)
-  #define DUALVNH5019MOTORSHIELD_TIMER1_AVAILABLE
-#endif
-
 #include <Arduino.h>
+//#include "hal/gpio_types.h"
 
 class DualVNH5019MotorShield
 {
