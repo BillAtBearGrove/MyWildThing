@@ -1,0 +1,5 @@
+4/27/25 NOTES: 
+This was intended to merge all the wilthing_collaboration branches and prepare the organization to be compatible with ECM_Arise
+But it doesn't compile or run yet
+Feels like I tried to do too much at once becuase I re-organized at the same time as merging I can't find the issues and kinda lost the plot on what works
+So probably need to start over
